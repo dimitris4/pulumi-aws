@@ -1,0 +1,7 @@
+config:
+  aws:region: us-east-1
+  targetDomain: dimitrios-react-app.net
+  pathToWebsiteContents: ../react-app/build
+  includeWWW: true
+  certificateArn:
+  env: prod
