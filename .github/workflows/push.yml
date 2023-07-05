@@ -31,7 +31,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - run: cd ../../react-app
+      - run: cd react-app
       - uses: actions/checkout@main
       - uses: jeanlescure/react-deploy-to-s3-action@main
         with:
