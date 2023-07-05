@@ -1,11 +1,9 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
-import * as apigateway from "@pulumi/aws-apigateway";
-import * as httpHandlers from "./http-handlers";
-import {RestAPI} from "@pulumi/aws-apigateway";
 import {Output} from "@pulumi/pulumi";
-import {UsagePlan} from "@pulumi/aws/apigateway";
 import {crawlDirectory, getDomainAndSubdomain} from "./utils/functions";
+import {ApiDbInstance} from "./resources/database";
+import {ApiGateway} from "./resources/api";
 
 const config = new pulumi.Config();
 
@@ -14,82 +12,13 @@ const stack = pulumi.getStack(); // dimitrios-dev, dev OR prod
 const isProd = stack === 'prod';
 
 // Database
-const apiDb = new aws.rds.Instance(`${stack}`, {
-    allocatedStorage: 10,
-    dbName: `${stack}`,
-    engine: "mysql",
-    engineVersion: "5.7",
-    instanceClass: "db.t3.micro",
-    parameterGroupName: "default.mysql5.7",
-    password: "17263787888",
-    skipFinalSnapshot: true,
-    username: "superuser",
-});
+const apiDb = ApiDbInstance;
 
-const api: RestAPI = new apigateway.RestAPI(`api-${stack}`, {
-    routes: [
-        {
-            path: "/login",
-            method: "POST",
-            eventHandler: new aws.lambda.CallbackFunction("login-handler", {
-                memorySize: 256, // 128, 256MB
-                callback: httpHandlers.login,
-            }),
-            apiKeyRequired: true,
-        },
-        {
-            path: "/signup",
-            method: "POST",
-            eventHandler: new aws.lambda.CallbackFunction("signup-handler", {
-                memorySize: 256, // 128, 256MB
-                callback: httpHandlers.signup,
-            }),
-            apiKeyRequired: true,
-        },
-        {
-            path: "/user-profile",
-            method: "GET",
-            eventHandler: new aws.lambda.CallbackFunction("get-user-profile-handler", {
-                memorySize: 256, // 128, 256MB
-                callback: httpHandlers.getUserProfile,
-            }),
-            apiKeyRequired: true,
-        },
-        {
-            path: "/terms-and-conditions",
-            target: {
-                type: "http_proxy",
-                uri: "https://www.google.com",
-            },
-        },
-    ],
-    apiKeySource: "AUTHORIZER",
-});
-
-// Create an API key to manage usage
-const apiKey = new aws.apigateway.ApiKey("api-key");
-
-// Define usage plan for an API stage
-const usagePlan: UsagePlan = new aws.apigateway.UsagePlan("usage-plan", {
-    apiStages: [{
-        apiId: api.api.id,
-        stage: api.stage.stageName,
-        // throttles: [{ path: "/login", rateLimit:2 }, ]
-    }],
-    // quotaSettings: {...},
-    // throttleSettings: {...},
-});
-
-// Associate the key to the plan
-new aws.apigateway.UsagePlanKey("usage-plan-key", {
-    keyId: apiKey.id,
-    keyType: "API_KEY",
-    usagePlanId: usagePlan.id,
-});
+// Api
+const api = ApiGateway;
 
 // Export the url of the api
 export const ApiUrl: Output<string> = api.url;
-
 
 // FRONTEND REACT APP
 import * as mime from "mime";
