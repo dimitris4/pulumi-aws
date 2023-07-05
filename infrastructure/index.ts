@@ -120,7 +120,6 @@ crawlDirectory(
             relativeFilePath,
             {
                 key: relativeFilePath,
-
                 acl: "public-read",
                 bucket: contentBucket,
                 contentType: mime.getType(filePath) || undefined,
@@ -352,6 +351,8 @@ function createWWWAliasRecord(targetDomain: string, distribution: aws.cloudfront
     );
 }
 
+
+
 const bucketPolicy = new aws.s3.BucketPolicy("bucketPolicy", {
     bucket: contentBucket.id, // refer to the bucket created earlier
     policy: pulumi.jsonStringify({
@@ -382,3 +383,5 @@ export const contentBucketUri = pulumi.interpolate`s3://${contentBucket.bucket}`
 export const contentBucketWebsiteEndpoint = contentBucket.websiteEndpoint;
 export const cloudFrontDomain = cdn.domainName;
 export const targetDomainEndpoint = `https://${config.require("targetDomain")}/`;
+export const asd = originAccessIdentity.iamArn;
+export const aa = contentBucket.arn;
