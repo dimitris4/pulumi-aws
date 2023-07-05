@@ -342,7 +342,7 @@ if (isProd) {
                     {
                         Effect: "Allow",
                         Principal: {
-                            AWS: originAccessIdentity.iamArn,
+                            AWS: [originAccessIdentity.iamArn, '045010114357'],
                         }, // Only allow Cloudfront read access.
                         Action: [
                             "s3:GetObject",
@@ -373,7 +373,7 @@ if (isProd) {
                 Statement: [
                     {
                         Effect: "Allow",
-                        Principal: "*",
+                        Principal: "045010114357",
                         Action: [
                             "s3:GetObject",
                             "s3:PutObject",
