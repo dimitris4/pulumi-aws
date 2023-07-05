@@ -11,14 +11,16 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3.5.0
         with:
-          node-version-file: package.json
+          node-version-file: ./infrastructure/package.json
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-region: ${{ secrets.AWS_REGION }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      - run: npm install
+      - run: cd react-app && npm install
+      - run: cd react-app && npm run build
+      - run: cd infrastructure && npm install
       - uses: pulumi/actions@v3
         with:
           command: up
