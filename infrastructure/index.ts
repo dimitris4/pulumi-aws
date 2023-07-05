@@ -363,7 +363,14 @@ const bucketPolicy = new aws.s3.BucketPolicy("bucketPolicy", {
                     Principal: {
                         AWS: originAccessIdentity.iamArn,
                     }, // Only allow Cloudfront read access.
-                    Action: ["s3:GetObject"],
+                    Action: [
+                        "s3:GetObject",
+                        "s3:ListBucket",
+                        "s3:PutObject",
+                        "s3:PutObjectAcl",
+                        "s3:ReplicateObject",
+                        "s3:DeleteObject"
+                    ],
                     Resource: [pulumi.interpolate`${contentBucket.arn}/*`], // Give Cloudfront access to the entire bucket.
                 },
             ],
