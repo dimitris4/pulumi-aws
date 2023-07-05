@@ -1,7 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as apigateway from "@pulumi/aws-apigateway";
-import * as functions from "../functions";
+import * as functions from "./functions";
 import {RestAPI} from "@pulumi/aws-apigateway";
 import {Output} from "@pulumi/pulumi";
 import {UsagePlan} from "@pulumi/aws/apigateway";
