@@ -7,7 +7,7 @@ import * as pulumi from "@pulumi/pulumi";
 
 const stack = pulumi.getStack(); // dimitrios-dev, dev OR prod
 
-const api: RestAPI = new apigateway.RestAPI(`api-${stack}`, {
+const apiGateway: RestAPI = new apigateway.RestAPI(`api-${stack}`, {
     routes: [
         {
             path: "/login",
@@ -48,13 +48,13 @@ const api: RestAPI = new apigateway.RestAPI(`api-${stack}`, {
 });
 
 // Create an API key to manage usage
-const apiKey = new aws.apigateway.ApiKey("api-key");
+const apiKey = new aws.apigateway.ApiKey("apiGateway-key");
 
 // Define usage plan for an API stage
 const usagePlan: UsagePlan = new aws.apigateway.UsagePlan("usage-plan", {
     apiStages: [{
-        apiId: api.api.id,
-        stage: api.stage.stageName,
+        apiId: apiGateway.api.id,
+        stage: apiGateway.stage.stageName,
         // throttles: [{ path: "/login", rateLimit:2 }, ]
     }],
     // quotaSettings: {...},
@@ -68,4 +68,4 @@ new aws.apigateway.UsagePlanKey("usage-plan-key", {
     usagePlanId: usagePlan.id,
 });
 
-export const ApiGateway = api;
+export const ApiGateway = apiGateway;
