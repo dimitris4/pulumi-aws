@@ -18,7 +18,9 @@ const api = ApiGateway;
 // Export the url of the api
 export const ApiUrl: Output<string> = api.url;
 
-// FRONTEND REACT APP
+// FRONTEND REACT APP. AWS Resources used: S3, CloudFront, Route53
+
+//TODO: Extract the components to resources folder
 import * as mime from "mime";
 import * as path from "path";
 
@@ -43,10 +45,10 @@ const logsBucket = new aws.s3.Bucket("requestLogs",
         acl: "private",
     });
 
-// Sync the contents of the source directory with the S3 bucket, which will in-turn show up on the CDN.
 // NOTE! it only creates missing files, does not replace every time the old with the new ones
 const webContentsRootPath = path.join(process.cwd(), config.require("pathToWebsiteContents"));
 
+// Syncs the contents of the source directory with the S3 bucket, which will in-turn show up on the CDN.
 crawlDirectory(
     webContentsRootPath,
     (filePath: string) => {
@@ -138,13 +140,13 @@ if (!certificateArn) {
     certificateArn = certificateValidation.certificateArn;
 }
 
-// Generate Origin Access Identity to access the private s3 bucket.
+// Generates Origin Access Identity to access the private s3 bucket.
+// ID of the CloudFront resource, so it can modify the contents of the S3 bucket.
 originAccessIdentity = new aws.cloudfront.OriginAccessIdentity("originAccessIdentity", {
     comment: "this is needed to setup s3 polices and make s3 not public.",
 });
 
 // if config.includeWWW include an alias for the www subdomain
-//TODO: create aliases for all subdomains, e.g. dev.dimitrios.net
 const distributionAliases = config.require("includeWWW") ? [config.require("targetDomain"), `www.${config.require("targetDomain")}`] : [config.require("targetDomain")];
 
 // distributionArgs configures the CloudFront distribution. Relevant documentation:
@@ -219,6 +221,7 @@ const distributionArgs: aws.cloudfront.DistributionArgs = {
 cdn = new aws.cloudfront.Distribution("cdn", distributionArgs);
 
 // Creates a new Route53 DNS record pointing the domain to the CloudFront distribution.
+//TODO: extract to utils folder
 function createAliasRecord(
     targetDomain: string, distribution: aws.cloudfront.Distribution): aws.route53.Record {
     const domainParts = getDomainAndSubdomain(targetDomain);
@@ -239,7 +242,6 @@ function createAliasRecord(
         });
 }
 
-//TODO: Put this to utils
 function createWWWAliasRecord(targetDomain: string, distribution: aws.cloudfront.Distribution): aws.route53.Record {
     const domainParts = getDomainAndSubdomain(targetDomain);
     const hostedZoneId = aws.route53.getZone({name: domainParts.parentDomain}, {async: true}).then(zone => zone.zoneId);

@@ -5,3 +5,5 @@ config:
   includeWWW: true
   certificateArn:
   env: prod
+  DB_USER: superuser
+  DB_PASSWORD: 12737123772123

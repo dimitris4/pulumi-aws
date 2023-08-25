@@ -1,7 +1,9 @@
 config:
   aws:region: us-east-1
-  targetDomain: dimitrios-react-app.net
+  targetDomain: dev.dimitrios-react-app.net
   pathToWebsiteContents: ../react-app/build
   certificateArn:
   includeWWW: true
   env: dev
+  DB_USER: superuser
+  DB_PASSWORD: 12737123772123
